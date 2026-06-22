@@ -73,5 +73,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Démarrage de l'application
-# 1 worker conseillé car PaddleOCR consomme beaucoup de RAM.
+# 1 worker conseillé car PaddleOCR consomme beaucoup de RAM donc une seule instance paddelocr est préférable pour éviter les conflits de ressources.
 CMD ["uvicorn", "fastapi_ocr_llm_light_app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
