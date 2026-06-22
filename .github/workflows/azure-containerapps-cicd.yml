@@ -1,0 +1,62 @@
+name: Build and Deploy OCR FastAPI App
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+env:
+  IMAGE_NAME: ocr-fastapi
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set variables
+        run: |
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          BRANCH_NAME="${GITHUB_REF_NAME}"
+
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${BRANCH_NAME}-${SHORT_SHA}" >> $GITHUB_ENV
+          echo "IMAGE_LATEST_TAG=latest" >> $GITHUB_ENV
+
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login --name "${{ secrets.ACR_NAME }}"
+
+      - name: Build Docker image
+        run: |
+          ACR_LOGIN_SERVER="${{ secrets.ACR_NAME }}.azurecr.io"
+
+          docker build \
+            -t $ACR_LOGIN_SERVER/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            -t $ACR_LOGIN_SERVER/${{ env.IMAGE_NAME }}:${{ env.IMAGE_LATEST_TAG }} \
+            .
+
+      - name: Push Docker image to ACR
+        run: |
+          ACR_LOGIN_SERVER="${{ secrets.ACR_NAME }}.azurecr.io"
+
+          docker push $ACR_LOGIN_SERVER/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push $ACR_LOGIN_SERVER/${{ env.IMAGE_NAME }}:${{ env.IMAGE_LATEST_TAG }}
+
+      - name: Deploy same app on Azure Container Apps
+        run: |
+          ACR_LOGIN_SERVER="${{ secrets.ACR_NAME }}.azurecr.io"
+
+          az containerapp update \
+            --name "${{ secrets.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ secrets.RESOURCE_GROUP }}" \
+            --image $ACR_LOGIN_SERVER/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
