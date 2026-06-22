@@ -1,0 +1,28 @@
+services:
+  # Service FastAPI
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocr_combined_llm_service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ORGA_OPENAI_API_KEY=${ORGA_OPENAI_API_KEY}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount code for development (hot reload)
+      - ./fastapi_ocr_llm_light_app.py:/app/fastapi_ocr_llm_light_app.py:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ocr_network
+
+networks:
+  ocr_network:
+    driver: bridge

@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+ocr_env/
+.venv
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+build.log
+
+# Data files
+*.pdf
+*.csv
+*.txt
+*.json
+!requirements.txt
+!package.json
+!package-lock.json
+
+# Directories to exclude
+MACIF_PDF/
+REN_EXP6/
+REN_EXPERT2/
+RESULTAT_*/
+RESULTA_*/
+RE_ BPU IMH_*/
+data/
+__pycache__/
+test_pdf/
+resultat*/
+results*/
+
+# Docker
+.dockerignore
+
+# Jupyter
+*.ipynb
+*.ipynb_checkpoints
+
+# Temporary files
+__TEMP__*/
+*.tmp
+*.temp
